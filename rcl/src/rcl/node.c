@@ -284,15 +284,6 @@ rcl_node_init(
     // error message already set
     goto fail;
   }
-  // The initialization for the rosout publisher requires the node to be in initialized to a point
-  // that it can create new topic publishers
-  if (rcl_logging_rosout_enabled() && node->impl->options.enable_rosout) {
-    ret = rcl_logging_rosout_init_publisher_for_node(node);
-    if (ret != RCL_RET_OK) {
-      // error message already set
-      goto fail;
-    }
-  }
   if (node->impl->options.enable_type_description_service) {
     RCUTILS_LOG_WARN_NAMED(
       ROS_PACKAGE_NAME,
@@ -310,14 +301,7 @@ rcl_node_init(
   goto cleanup;
 fail:
   if (node->impl) {
-    if (rcl_logging_rosout_enabled() &&
-      node->impl->options.enable_rosout &&
-      node->impl->logger_name)
-    {
-      ret = rcl_logging_rosout_fini_publisher_for_node(node);
-      RCUTILS_LOG_ERROR_EXPRESSION_NAMED(
-        (ret != RCL_RET_OK && ret != RCL_RET_NOT_INIT),
-        ROS_PACKAGE_NAME, "Failed to fini publisher for node: %i", ret);
+    if (node->impl->logger_name) {
       allocator->deallocate((char *)node->impl->logger_name, allocator->state);
     }
     if (node->impl->fq_name) {

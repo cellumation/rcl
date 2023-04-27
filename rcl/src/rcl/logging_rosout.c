@@ -252,11 +252,11 @@ rcl_ret_t rcl_logging_rosout_init_publisher_for_node(rcl_node_t * node)
     // names based on the outcome here: https://github.com/ros2/design/issues/187
     RCUTILS_LOG_WARN_NAMED(
       "rcl.logging_rosout",
-      "Publisher already registered for provided node name. If this is due to multiple nodes "
+      "Publisher already registered for node (%s). If this is due to multiple nodes "
       "with the same name then all logs for that logger name will go out over the existing "
       "publisher. As soon as any node with that name is destructed it will unregister the "
       "publisher, preventing any further logs for that name from being published on the rosout "
-      "topic.");
+      "topic.", logger_name);
     return RCL_RET_OK;
   }
 

@@ -203,6 +203,27 @@ rcl_wait_set_fini(rcl_wait_set_t * wait_set)
 }
 
 rcl_ret_t
+rcl_get_wait_set_indices(const rcl_wait_set_t * wait_set, rcl_wait_set_indices_t * wait_set_indices)
+{
+  RCL_CHECK_ARGUMENT_FOR_NULL(wait_set, RCL_RET_INVALID_ARGUMENT);
+  if (!rcl_wait_set_is_valid(wait_set)) {
+    RCL_SET_ERROR_MSG("wait set is invalid");
+    return RCL_RET_WAIT_SET_INVALID;
+  }
+
+  RCL_CHECK_ARGUMENT_FOR_NULL(wait_set_indices, RCL_RET_INVALID_ARGUMENT);
+
+  wait_set_indices->client_index = wait_set->impl->client_index;
+  wait_set_indices->event_index = wait_set->impl->event_index;
+  wait_set_indices->guard_condition_index = wait_set->impl->guard_condition_index;
+  wait_set_indices->service_index = wait_set->impl->service_index;
+  wait_set_indices->subscription_index = wait_set->impl->subscription_index;
+  wait_set_indices->timer_index = wait_set->impl->timer_index;
+
+  return RCL_RET_OK;
+}
+
+rcl_ret_t
 rcl_wait_set_get_allocator(const rcl_wait_set_t * wait_set, rcl_allocator_t * allocator)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(wait_set, RCL_RET_INVALID_ARGUMENT);

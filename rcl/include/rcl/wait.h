@@ -68,6 +68,29 @@ typedef struct rcl_wait_set_s
   rcl_wait_set_impl_t * impl;
 } rcl_wait_set_t;
 
+typedef struct rcl_wait_set_indices_s
+{
+  // number of subscriptions that have been added to the wait set
+  size_t subscription_index;
+  // number of guard_conditions that have been added to the wait set
+  size_t guard_condition_index;
+  // number of clients that have been added to the wait set
+  size_t client_index;
+  // number of services that have been added to the wait set
+  size_t service_index;
+  // number of events that have been added to the wait set
+  size_t event_index;
+  // number of timers that have been added to the wait set
+  size_t timer_index;
+} rcl_wait_set_indices_t;
+
+/// Returns the current indices for the wait_set
+RCL_PUBLIC
+rcl_ret_t
+rcl_get_wait_set_indices(
+  const rcl_wait_set_t * wait_set,
+  rcl_wait_set_indices_t * wait_set_indices);
+
 /// Return a rcl_wait_set_t struct with members set to `NULL`.
 RCL_PUBLIC
 RCL_WARN_UNUSED

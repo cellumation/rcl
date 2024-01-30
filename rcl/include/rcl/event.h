@@ -61,6 +61,10 @@ typedef struct rcl_event_s
 {
   /// Pointer to the event implementation
   rcl_event_impl_t * impl;
+  /// Pointer that may be filled as desired.
+  /// rcl will not take ownership and will not
+  /// try to delete this pointer.
+  void *user_data;
 } rcl_event_t;
 
 /// Return a rcl_event_t struct with members set to `NULL`.

@@ -39,6 +39,10 @@ typedef struct rcl_guard_condition_s
 
   /// Pointer to the guard condition implementation
   rcl_guard_condition_impl_t * impl;
+  /// Pointer that may be filled as desired.
+  /// rcl will not take ownership and will not
+  /// try to delete this pointer.
+  void *user_data;
 } rcl_guard_condition_t;
 
 /// Options available for a rcl guard condition.

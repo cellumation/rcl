@@ -43,6 +43,10 @@ typedef struct rcl_client_s
 {
   /// Pointer to the client implementation
   rcl_client_impl_t * impl;
+  /// Pointer that may be filled as desired.
+  /// rcl will not take ownership and will not
+  /// try to delete this pointer.
+  void *user_data;
 } rcl_client_t;
 
 /// Options available for a rcl_client_t.

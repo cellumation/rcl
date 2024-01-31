@@ -248,7 +248,7 @@ rcl_wait_set_get_allocator(const rcl_wait_set_t * wait_set, rcl_allocator_t * al
     return RCL_RET_WAIT_SET_FULL; \
   } \
   size_t current_index = wait_set->impl->Type ## _index++; \
-  wait_set->Type ## _index = current_index; \
+  wait_set->nr_of_added_ ## Type ## s = current_index + 1; \
   wait_set->Type ## s[current_index] = Type; \
   /* Set optional output argument */ \
   if (NULL != index) { \
@@ -271,7 +271,7 @@ rcl_wait_set_get_allocator(const rcl_wait_set_t * wait_set, rcl_allocator_t * al
         0, \
         sizeof(rcl_ ## Type ## _t *) * wait_set->size_of_ ## Type ## s); \
       wait_set->impl->Type ## _index = 0; \
-      wait_set->Type ## _index = 0; \
+      wait_set->nr_of_added_ ## Type ## s = 0; \
     } \
   } while (false)
 
@@ -292,7 +292,7 @@ rcl_wait_set_get_allocator(const rcl_wait_set_t * wait_set, rcl_allocator_t * al
     rcl_allocator_t allocator = wait_set->impl->allocator; \
     wait_set->size_of_ ## Type ## s = 0; \
     wait_set->impl->Type ## _index = 0; \
-    wait_set->Type ## _index = 0; \
+    wait_set->nr_of_added_ ## Type ## s = 0; \
     if (0 == Type ## s_size) { \
       if (wait_set->Type ## s) { \
         allocator.deallocate((void *)wait_set->Type ## s, allocator.state); \
@@ -328,7 +328,7 @@ rcl_wait_set_get_allocator(const rcl_wait_set_t * wait_set, rcl_allocator_t * al
     allocator.deallocate((void *)wait_set->Type ## s, allocator.state); \
     wait_set->Type ## s = NULL; \
     wait_set->size_of_ ## Type ## s = 0; \
-    wait_set->Type ## _index = 0; \
+    wait_set->nr_of_added_ ## Type ## s = 0; \
     RCL_SET_ERROR_MSG("allocating memory failed"); \
     return RCL_RET_BAD_ALLOC; \
   } \

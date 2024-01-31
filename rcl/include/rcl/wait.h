@@ -45,37 +45,37 @@ typedef struct rcl_wait_set_s
   /// Number of subscriptions
   size_t size_of_subscriptions;
   // number of subscriptions that have been added to the wait set
-  size_t subscription_index;
+  size_t nr_of_added_subscriptions;
   /// Storage for guard condition pointers.
   const rcl_guard_condition_t ** guard_conditions;
   /// Number of guard_conditions
   size_t size_of_guard_conditions;
   // number of guard_conditions that have been added to the wait set
-  size_t guard_condition_index;
+  size_t nr_of_added_guard_conditions;
   /// Storage for timer pointers.
   const rcl_timer_t ** timers;
   /// Number of timers
   size_t size_of_timers;
   /// Storage for client pointers.
   // number of timers that have been added to the wait set
-  size_t timer_index;
+  size_t nr_of_added_timers;
   const rcl_client_t ** clients;
   /// Number of clients
   size_t size_of_clients;
   /// Storage for service pointers.
   // number of clients that have been added to the wait set
-  size_t client_index;
+  size_t nr_of_added_clients;
   const rcl_service_t ** services;
   /// Number of services
   size_t size_of_services;
   // number of services that have been added to the wait set
-  size_t service_index;
+  size_t nr_of_added_services;
   /// Storage for event pointers.
   const rcl_event_t ** events;
   /// Number of events
   size_t size_of_events;
   // number of events that have been added to the wait set
-  size_t event_index;
+  size_t nr_of_added_events;
   /// Implementation specific storage.
   rcl_wait_set_impl_t * impl;
 } rcl_wait_set_t;

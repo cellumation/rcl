@@ -596,8 +596,6 @@ rcl_wait(rcl_wait_set_t * wait_set, int64_t timeout)
         }
       }
 
-      clocks[clock->type] = clock;
-
       // get the time of the next call to the timer
       int64_t next_call_time = INT64_MAX;
       rcl_ret_t ret = rcl_timer_get_next_call_time(wait_set->timers[t_idx], &next_call_time);
@@ -609,6 +607,7 @@ rcl_wait(rcl_wait_set_t * wait_set, int64_t timeout)
         return ret;  // The rcl error state should already be set.
       }
       if (next_call_time < min_next_call_time[clock->type]) {
+        clocks[clock->type] = clock;
         min_next_call_time[clock->type] = next_call_time;
       }
     }

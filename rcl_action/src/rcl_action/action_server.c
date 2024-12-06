@@ -203,6 +203,7 @@ rcl_action_server_init(
   if (RCL_RET_OK != ret) {
     rcutils_reset_error();
     RCL_SET_ERROR_MSG("Failed to register type for action");
+    ret = RCL_RET_ERROR;
     goto fail;
   }
   action_server->impl->type_hash = *type_support->get_type_hash_func(type_support);

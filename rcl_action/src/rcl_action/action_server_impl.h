@@ -27,6 +27,7 @@ typedef struct rcl_action_server_impl_s
   rcl_publisher_t feedback_publisher;
   rcl_publisher_t status_publisher;
   rcl_timer_t expire_timer;
+  bool owns_expire_timer;
   char * action_name;
   rcl_action_server_options_t options;
   // Array of goal handles

@@ -53,13 +53,8 @@ rcl_action_get_zero_initialized_server(void)
   char * Type ## _service_name = NULL; \
   ret = rcl_action_get_ ## Type ## _service_name(action_name, allocator, &Type ## _service_name); \
   if (RCL_RET_OK != ret) { \
-    if (RCL_RET_BAD_ALLOC == ret) { \
-      ret = RCL_RET_BAD_ALLOC; \
-    } else if (RCL_RET_ACTION_NAME_INVALID == ret) { \
-      ret = RCL_RET_ACTION_NAME_INVALID; \
-    } else { \
-      ret = RCL_RET_ERROR; \
-    } \
+    rcl_reset_error(); \
+    RCL_SET_ERROR_MSG("failed to get " #Type " service name"); \
     goto fail; \
   } \
   rcl_service_options_t Type ## _service_options = { \
@@ -73,12 +68,8 @@ rcl_action_get_zero_initialized_server(void)
     &Type ## _service_options); \
   allocator.deallocate(Type ## _service_name, allocator.state); \
   if (RCL_RET_OK != ret) { \
-    if (RCL_RET_BAD_ALLOC == ret) { \
-      ret = RCL_RET_BAD_ALLOC; \
-    } else if (RCL_RET_SERVICE_NAME_INVALID == ret) { \
+    if (RCL_RET_SERVICE_NAME_INVALID == ret) { \
       ret = RCL_RET_ACTION_NAME_INVALID; \
-    } else { \
-      ret = RCL_RET_ERROR; \
     } \
     goto fail; \
   }
@@ -87,13 +78,8 @@ rcl_action_get_zero_initialized_server(void)
   char * Type ## _topic_name = NULL; \
   ret = rcl_action_get_ ## Type ## _topic_name(action_name, allocator, &Type ## _topic_name); \
   if (RCL_RET_OK != ret) { \
-    if (RCL_RET_BAD_ALLOC == ret) { \
-      ret = RCL_RET_BAD_ALLOC; \
-    } else if (RCL_RET_ACTION_NAME_INVALID == ret) { \
-      ret = RCL_RET_ACTION_NAME_INVALID; \
-    } else { \
-      ret = RCL_RET_ERROR; \
-    } \
+    rcl_reset_error(); \
+    RCL_SET_ERROR_MSG("failed to get " #Type " topic name"); \
     goto fail; \
   } \
   rcl_publisher_options_t Type ## _publisher_options = { \
@@ -107,12 +93,8 @@ rcl_action_get_zero_initialized_server(void)
     &Type ## _publisher_options); \
   allocator.deallocate(Type ## _topic_name, allocator.state); \
   if (RCL_RET_OK != ret) { \
-    if (RCL_RET_BAD_ALLOC == ret) { \
-      ret = RCL_RET_BAD_ALLOC; \
-    } else if (RCL_RET_TOPIC_NAME_INVALID == ret) { \
+    if (RCL_RET_TOPIC_NAME_INVALID == ret) { \
       ret = RCL_RET_ACTION_NAME_INVALID; \
-    } else { \
-      ret = RCL_RET_ERROR; \
     } \
     goto fail; \
   }
@@ -180,15 +162,10 @@ rcl_action_server_init(
   // Store reference to clock
   action_server->impl->clock = clock;
 
-  // Initialize Timer
+  // Initialize Timer, disabled by default so it doesn't start firing
   ret = rcl_timer_init2(
     &action_server->impl->expire_timer, action_server->impl->clock, node->context,
-    options->result_timeout.nanoseconds, NULL, allocator, true);
-  if (RCL_RET_OK != ret) {
-    goto fail;
-  }
-  // Cancel timer so it doesn't start firing
-  ret = rcl_timer_cancel(&action_server->impl->expire_timer);
+    options->result_timeout.nanoseconds, NULL, allocator, false);
   if (RCL_RET_OK != ret) {
     goto fail;
   }
@@ -201,11 +178,11 @@ rcl_action_server_init(
   }
 
   // Store type hash
-  if (RCL_RET_OK != rcl_node_type_cache_register_type(
+  ret = rcl_node_type_cache_register_type(
       node, type_support->get_type_hash_func(type_support),
       type_support->get_type_description_func(type_support),
-      type_support->get_type_description_sources_func(type_support)))
-  {
+      type_support->get_type_description_sources_func(type_support));
+  if (RCL_RET_OK != ret) {
     rcutils_reset_error();
     RCL_SET_ERROR_MSG("Failed to register type for action");
     goto fail;
@@ -948,7 +925,7 @@ rcl_action_server_goal_exists(
   for (size_t i = 0u; i < action_server->impl->num_goal_handles; ++i) {
     ret = rcl_action_goal_handle_get_info(action_server->impl->goal_handles[i], &gh_goal_info);
     if (RCL_RET_OK != ret) {
-      RCL_SET_ERROR_MSG("failed to get info for goal handle");
+      // error is already set
       return false;
     }
     // Compare UUIDs
@@ -1000,22 +977,27 @@ rcl_action_server_is_valid_except_context(const rcl_action_server_t * action_ser
   RCL_CHECK_FOR_NULL_WITH_MSG(
     action_server->impl, "action server implementation is invalid", return false);
   if (!rcl_service_is_valid(&action_server->impl->goal_service)) {
+    rcl_reset_error();
     RCL_SET_ERROR_MSG("goal service is invalid");
     return false;
   }
   if (!rcl_service_is_valid(&action_server->impl->cancel_service)) {
+    rcl_reset_error();
     RCL_SET_ERROR_MSG("cancel service is invalid");
     return false;
   }
   if (!rcl_service_is_valid(&action_server->impl->result_service)) {
+    rcl_reset_error();
     RCL_SET_ERROR_MSG("result service is invalid");
     return false;
   }
   if (!rcl_publisher_is_valid_except_context(&action_server->impl->feedback_publisher)) {
+    rcl_reset_error();
     RCL_SET_ERROR_MSG("feedback publisher is invalid");
     return false;
   }
   if (!rcl_publisher_is_valid_except_context(&action_server->impl->status_publisher)) {
+    rcl_reset_error();
     RCL_SET_ERROR_MSG("status publisher is invalid");
     return false;
   }

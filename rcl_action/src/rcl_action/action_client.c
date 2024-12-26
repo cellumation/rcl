@@ -114,11 +114,6 @@ _rcl_action_client_fini_impl(
   if (RCL_RET_OK != ret) { \
     rcl_reset_error(); \
     RCL_SET_ERROR_MSG("failed to get " #Type " service name"); \
-    if (RCL_RET_BAD_ALLOC == ret) { \
-      ret = RCL_RET_BAD_ALLOC; \
-    } else { \
-      ret = RCL_RET_ERROR; \
-    } \
     goto fail; \
   } \
   rcl_client_options_t Type ## _service_client_options = { \
@@ -133,12 +128,8 @@ _rcl_action_client_fini_impl(
     &Type ## _service_client_options); \
   allocator.deallocate(Type ## _service_name, allocator.state); \
   if (RCL_RET_OK != ret) { \
-    if (RCL_RET_BAD_ALLOC == ret) { \
-      ret = RCL_RET_BAD_ALLOC; \
-    } else if (RCL_RET_SERVICE_NAME_INVALID == ret) { \
+    if (RCL_RET_SERVICE_NAME_INVALID == ret) { \
       ret = RCL_RET_ACTION_NAME_INVALID; \
-    } else { \
-      ret = RCL_RET_ERROR; \
     } \
     goto fail; \
   }
@@ -150,11 +141,6 @@ _rcl_action_client_fini_impl(
   if (RCL_RET_OK != ret) { \
     rcl_reset_error(); \
     RCL_SET_ERROR_MSG("failed to get " #Type " topic name"); \
-    if (RCL_RET_BAD_ALLOC == ret) { \
-      ret = RCL_RET_BAD_ALLOC; \
-    } else { \
-      ret = RCL_RET_ERROR; \
-    } \
     goto fail; \
   } \
   rcl_subscription_options_t Type ## _topic_subscription_options = \
@@ -170,12 +156,8 @@ _rcl_action_client_fini_impl(
     &Type ## _topic_subscription_options); \
   allocator.deallocate(Type ## _topic_name, allocator.state); \
   if (RCL_RET_OK != ret) { \
-    if (RCL_RET_BAD_ALLOC == ret) { \
-      ret = RCL_RET_BAD_ALLOC; \
-    } else if (RCL_RET_TOPIC_NAME_INVALID == ret) { \
+    if (RCL_RET_TOPIC_NAME_INVALID == ret) { \
       ret = RCL_RET_ACTION_NAME_INVALID; \
-    } else { \
-      ret = RCL_RET_ERROR; \
     } \
     goto fail; \
   }
@@ -231,11 +213,11 @@ rcl_action_client_init(
   SUBSCRIPTION_INIT(feedback);
   SUBSCRIPTION_INIT(status);
 
-  if (RCL_RET_OK != rcl_node_type_cache_register_type(
+  ret = rcl_node_type_cache_register_type(
       node, type_support->get_type_hash_func(type_support),
       type_support->get_type_description_func(type_support),
-      type_support->get_type_description_sources_func(type_support)))
-  {
+      type_support->get_type_description_sources_func(type_support));
+  if (RCL_RET_OK != ret) {
     rcutils_reset_error();
     RCL_SET_ERROR_MSG("Failed to register type for action");
     goto fail;
